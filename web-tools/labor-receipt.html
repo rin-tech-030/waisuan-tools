@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta name="referrer" content="no-referrer">
+<title>勞務報酬單產生器（單張，非官方）</title>
+<meta name="description" content="非官方、內容由 AI 製作：填入資料即可試算 9A 執行業務所得、9B 稿費的扣繳稅額、二代健保補充保費與實付金額，並列印勞務報酬單。資料只在你的瀏覽器中處理。">
+<!-- 本頁刻意不載入 Google Fonts 或任何外部資源：除了本站樣式表，不發出任何網路請求（上方 CSP 也禁止連線）。 -->
+<link rel="stylesheet" href="style.css">
+<style>
+  /* 頁首導覽：本頁屬於「免費工具」 */
+  .nav a.is-section { color: var(--text); border-bottom-color: var(--accent); font-weight: 700; }
+
+  /* 表單 */
+  .form fieldset {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    padding: 0.75rem 1rem 1rem;
+    margin: 0 0 1rem;
+    min-width: 0;
+  }
+  .form legend { font-weight: 700; padding: 0 0.35rem; }
+  .field { margin: 0 0 0.9rem; min-width: 0; }
+  .field:last-child { margin-bottom: 0; }
+  .field > label, .field > .label { display: block; font-weight: 700; margin-bottom: 0.25rem; }
+  .opt { font-weight: 400; color: var(--text-muted); font-size: 0.875rem; }
+  .form input[type="text"], .form input[type="date"], .form select {
+    width: 100%;
+    max-width: 100%;
+    font: inherit;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 2.75rem;
+  }
+  .form input[aria-invalid="true"] { border-color: var(--stop); }
+  .hint { font-size: 0.875rem; color: var(--text-muted); margin: 0.25rem 0 0; }
+  .err { font-size: 0.875rem; color: var(--stop); margin: 0.25rem 0 0; font-weight: 700; }
+  .radios { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; }
+  .radios label, .check { display: flex; gap: 0.5rem; align-items: flex-start; font-weight: 400; cursor: pointer; }
+  .radios input, .check input { margin-top: 0.45rem; width: 1.1rem; height: 1.1rem; flex: none; accent-color: var(--accent); }
+  .grid2 { display: grid; gap: 0 1rem; }
+  @media (min-width: 48em) { .grid2 { grid-template-columns: 1fr 1fr; } }
+
+  /* 試算結果 */
+  .result-why { list-style: none; padding: 0; margin: 0 0 1rem; font-size: 0.95rem; }
+  .result-why li { padding: 0.45rem 0 0.45rem 0.9rem; border-left: 3px solid var(--border); margin: 0 0 0.4rem; }
+  .result-why li.is-warn { border-left-color: var(--warn-border); background: var(--warn-soft); padding-right: 0.6rem; }
+  .stat dd { overflow-wrap: anywhere; }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 1rem 0; }
+  .btn {
+    font: inherit; font-weight: 700;
+    padding: 0.65rem 1.1rem;
+    min-height: 2.75rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: var(--accent-ink);
+    cursor: pointer;
+  }
+  .btn--ghost { background: var(--surface); color: var(--accent); }
+
+  /* 勞務報酬單本體（螢幕預覽與列印共用） */
+  .receipt {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    color: var(--text);
+  }
+  .receipt h2 { text-align: center; margin: 0 0 0.25rem; font-size: 1.35rem; letter-spacing: 0.2em; }
+  .receipt .rc-sub { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin: 0 0 0.75rem; }
+  .rc-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 0.95rem; margin: 0 0 0.75rem; }
+  .rc-table th, .rc-table td { border: 1px solid var(--border); padding: 0.45rem 0.6rem; vertical-align: top; white-space: normal; overflow-wrap: anywhere; }
+  .rc-table th { width: 7.5em; background: var(--surface-2); font-weight: 700; }
+  .rc-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .rc-table tr.rc-total th, .rc-table tr.rc-total td { font-weight: 700; }
+  .blank { color: var(--text-muted); }
+  .sign { display: grid; grid-template-columns: 1fr; gap: 0.75rem; margin: 1rem 0 0.5rem; }
+  .sign div { border: 1px solid var(--border); border-radius: 4px; padding: 0.4rem 0.6rem; min-height: 5.5rem; font-size: 0.9rem; }
+  .rc-note { font-size: 0.78rem; color: var(--text-muted); margin: 0.5rem 0 0; }
+  @media (min-width: 30em) { .sign { grid-template-columns: repeat(3, 1fr); } }
+
+  .basis td, .basis th { font-size: 0.92rem; }
+
+  @media print {
+    @page { size: A4; margin: 15mm; }
+    body { background: #fff; color: #000; font-size: 11pt; line-height: 1.5; }
+    .site-header, .site-footer, .skip, .no-print { display: none !important; }
+    main { padding: 0; }
+    .wrap { max-width: none; padding: 0; }
+    .receipt { border: 0; padding: 0; background: #fff; color: #000; }
+    .receipt .rc-sub, .rc-note, .blank { color: #333; }
+    .rc-table th, .rc-table td, .sign div { border-color: #000; }
+    .rc-table th { background: #eee; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .sign { grid-template-columns: repeat(3, 1fr); }
+    .receipt, .rc-table tr, .sign { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到主要內容</a>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="https://github.com/rin-tech-030/waisuan-tools">300 元 <span>AI 創業實驗</span></a>
+    <nav aria-label="主選單">
+      <ul class="nav">
+        <li><a href="https://github.com/rin-tech-030/waisuan-tools">首頁</a></li>
+        <li><a href="https://github.com/rin-tech-030/waisuan-tools">公開帳本</a></li>
+        <li><a href="https://github.com/rin-tech-030/waisuan-tools">決策紀錄</a></li>
+        <li><a href="windows-errors.html" class="is-section">免費工具</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap">
+    <div class="no-print">
+      <p class="eyebrow">免費工具 #2</p>
+      <h1>勞務報酬單產生器（單張）</h1>
+
+      <div class="notice" role="note">
+        <strong>非官方、內容由 AI 製作、整理日期 2026-10-14</strong>
+        <p>本頁是獨立實驗的一部分，不是財政部、國稅局或健保署的工具。結果僅供試算，不是稅務建議；實際扣繳與補充保費以國稅局與健保署規定為準，有疑問請洽所在地國稅局或健保署。</p>
+      </div>
+
+      <p class="lede">填入給付資料，自動算出扣繳稅額、二代健保補充保費和實付金額，再印出一張勞務報酬單給所得人簽名。</p>
+
+      <div class="notice">
+        <strong>你的資料不會離開這台電腦</strong>
+        <ul>
+          <li>所有計算都在你的瀏覽器裡進行。本頁沒有表單送出功能，不會把任何資料傳到網路上，也不寫入 localStorage、Cookie 或其他瀏覽器儲存空間。</li>
+          <li>本頁不載入外部字型、統計或廣告程式，並用安全設定（CSP）禁止頁面對外連線。</li>
+          <li>關掉或重新整理頁面，填過的資料就會消失；需要留存請列印或「另存為 PDF」。</li>
+        </ul>
+      </div>
+
+      <div class="notice">
+        <strong>適用範圍（請先確認）</strong>
+        <ul>
+          <li>只適用<strong>中華民國境內居住之個人</strong>（一般來說是在台灣有戶籍、或一年內在台居留滿 183 天的人）。非境內居住者扣繳率是 20%，本工具不適用。</li>
+          <li>只處理兩種所得：<strong>9A 執行業務所得</strong>、<strong>9B 稿費、版稅、樂譜、作曲、編劇、漫畫、講演之鐘點費</strong>。薪資（50，包括有課程的授課鐘點費）、租金、獎金等不適用。</li>
+          <li>不做年度報稅估算；9B 每年 18 萬元的免稅額是所得人報稅時的事，不影響給付時的扣繳。</li>
+        </ul>
+      </div>
+
+      <h2 id="form-title">填寫資料</h2>
+      <form class="form" id="lr-form" aria-labelledby="form-title" autocomplete="off" novalidate>
+        <fieldset>
+          <legend>給付單位</legend>
+          <div class="field">
+            <label for="payer">給付單位名稱</label>
+            <input type="text" id="payer" maxlength="80" placeholder="例如：○○工作室">
+          </div>
+          <div class="field">
+            <label for="purpose">給付事由 <span class="opt">（選填）</span></label>
+            <input type="text" id="purpose" maxlength="80" placeholder="例如：10 月插畫稿費">
+          </div>
+          <div class="field">
+            <label for="pay-date">給付日期</label>
+            <input type="date" id="pay-date" aria-describedby="pay-date-hint">
+            <p class="hint" id="pay-date-hint">扣繳與補充保費都以「每次給付」為單位判斷。</p>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>所得人</legend>
+          <div class="field">
+            <label for="name">姓名</label>
+            <input type="text" id="name" maxlength="40">
+          </div>
+          <div class="field">
+            <label for="idno">身分證字號／居留證號</label>
+            <input type="text" id="idno" maxlength="12" autocapitalize="characters" spellcheck="false" aria-describedby="idno-msg">
+            <p class="hint" id="idno-msg">只在本機檢查格式與檢查碼，不會送出。</p>
+          </div>
+          <div class="field">
+            <label for="addr">戶籍地址</label>
+            <input type="text" id="addr" maxlength="120">
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>所得類別與金額</legend>
+          <div class="field">
+            <span class="label" id="cat-label">所得類別</span>
+            <div class="radios" role="radiogroup" aria-labelledby="cat-label">
+              <label><input type="radio" name="cat" value="9A" checked> 9A 執行業務所得</label>
+              <label><input type="radio" name="cat" value="9B"> 9B 稿費等</label>
+            </div>
+          </div>
+          <div class="field" id="item9a-wrap">
+            <label for="item9a">執行業務項目</label>
+            <select id="item9a">
+              <option value="">請選擇</option>
+              <option>表演人</option>
+              <option>經紀人</option>
+              <option>工匠</option>
+              <option>地政士（代書）</option>
+              <option>律師</option>
+              <option>會計師</option>
+              <option>記帳士</option>
+              <option>建築師</option>
+              <option>技師</option>
+              <option>其他以技藝自力營生者</option>
+              <option value="__custom">其他（自行填寫）</option>
+            </select>
+            <p class="hint">項目只會印在報酬單上，不影響計算。不確定屬於哪一項，請向國稅局或會計師確認。</p>
+          </div>
+          <div class="field" id="item9a-custom-wrap" hidden>
+            <label for="item9a-custom">自行填寫執行業務項目</label>
+            <input type="text" id="item9a-custom" maxlength="40">
+          </div>
+          <div class="field" id="item9b-wrap" hidden>
+            <label for="item9b">9B 細項</label>
+            <select id="item9b">
+              <option>稿費</option>
+              <option>版稅</option>
+              <option>樂譜</option>
+              <option>作曲</option>
+              <option>編劇</option>
+              <option>漫畫</option>
+              <option>講演之鐘點費（無課程安排）</option>
+            </select>
+            <p class="hint">有課程安排的授課鐘點費屬於薪資所得（50），不是 9B，本工具不適用。</p>
+          </div>
+          <div class="field">
+            <label for="gross">給付總額（新臺幣，元）</label>
+            <input type="text" id="gross" inputmode="numeric" maxlength="16" placeholder="例如：30000" aria-describedby="gross-msg">
+            <p class="hint" id="gross-msg">請填扣稅、扣保費之前的總額，整數元。可以有逗號。</p>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>二代健保補充保費</legend>
+          <div class="field">
+            <label class="check"><input type="checkbox" id="union"> <span>所得人本人在職業工會投保（第 2 類被保險人），並已提供投保證明 → 免扣補充保費</span></label>
+            <p class="hint">以「第 2 類眷屬」身分投保的人仍要扣。專門職業及技術人員自行執業（第 1 類第 5 目）以執行業務所得為投保金額者也免扣，同樣可以勾選。給付單位應留存所得人提供的投保證明。</p>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>匯款資訊 <span class="opt">（選填）</span></legend>
+          <div class="grid2">
+            <div class="field">
+              <label for="bank">銀行與分行</label>
+              <input type="text" id="bank" maxlength="60">
+            </div>
+            <div class="field">
+              <label for="acct">帳號</label>
+              <input type="text" id="acct" inputmode="numeric" maxlength="30" spellcheck="false">
+            </div>
+          </div>
+        </fieldset>
+      </form>
+
+      <h2 id="result-title">試算結果</h2>
+      <div id="result" aria-live="polite">
+        <dl class="stats">
+          <div class="stat"><dt>給付總額</dt><dd id="r-gross">—</dd></div>
+          <div class="stat"><dt>扣繳稅額</dt><dd id="r-tax">—</dd></div>
+          <div class="stat"><dt>補充保費</dt><dd id="r-nhi">—</dd></div>
+          <div class="stat"><dt>實付金額</dt><dd id="r-net">—</dd></div>
+        </dl>
+        <ul class="result-why" id="r-why"><li>請先填寫給付總額。</li></ul>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn" id="btn-print">列印／另存 PDF</button>
+        <button type="button" class="btn btn--ghost" id="btn-clear">清除所有欄位</button>
+      </div>
+
+      <h2>報酬單預覽</h2>
+      <p class="small muted">列印時只會印出下面這張單子。</p>
+    </div>
+
+    <section class="receipt" id="receipt" aria-label="勞務報酬單預覽">
+      <h2>勞務報酬單</h2>
+      <p class="rc-sub">所得格式代號 <span id="p-code">9A</span>　<span id="p-catname">執行業務所得</span></p>
+      <table class="rc-table">
+        <tbody>
+          <tr><th scope="row">給付單位</th><td id="p-payer"></td></tr>
+          <tr><th scope="row">給付事由</th><td id="p-purpose"></td></tr>
+          <tr><th scope="row">所得項目</th><td id="p-item"></td></tr>
+          <tr><th scope="row">給付日期</th><td id="p-date"></td></tr>
+          <tr><th scope="row">所得人姓名</th><td id="p-name"></td></tr>
+          <tr><th scope="row">身分證字號</th><td id="p-idno"></td></tr>
+          <tr><th scope="row">戶籍地址</th><td id="p-addr"></td></tr>
+          <tr><th scope="row">匯款帳戶</th><td id="p-bank"></td></tr>
+        </tbody>
+      </table>
+      <table class="rc-table">
+        <tbody>
+          <tr><th scope="row">給付總額</th><td class="num" id="p-gross"></td></tr>
+          <tr><th scope="row">扣繳稅額</th><td class="num" id="p-tax"></td></tr>
+          <tr><th scope="row">補充保費</th><td class="num" id="p-nhi"></td></tr>
+          <tr class="rc-total"><th scope="row">實付金額</th><td class="num" id="p-net"></td></tr>
+          <tr><th scope="row">實付（大寫）</th><td id="p-net-upper"></td></tr>
+        </tbody>
+      </table>
+      <p class="small" id="p-statement">上列款項已如數收訖。</p>
+      <div class="sign">
+        <div>所得人簽名或蓋章</div>
+        <div>給付單位經手人</div>
+        <div>給付單位用印</div>
+      </div>
+      <p class="rc-note">扣繳稅率 10%（每次應扣繳稅額不超過 NT$2,000 免扣繳）；補充保費費率 2.11%（單次給付達 NT$20,000 才扣，單次費基上限 NT$1,000 萬）。本單由非官方試算工具產生，金額以國稅局與健保署規定為準。</p>
+    </section>
+
+    <div class="no-print">
+      <h2 id="basis">計算依據</h2>
+      <p>以下每條規則都在 2026-10-14 打開官方頁面核對過。法規可能修正，使用前請點連結再確認一次。</p>
+      <div class="table-wrap">
+        <table class="stack basis">
+          <thead>
+            <tr><th scope="col">規則</th><th scope="col">本工具的做法</th><th scope="col">官方出處</th><th scope="col">適用年度</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td data-label="規則"><div>扣繳率</div></td>
+              <td data-label="做法"><div>境內居住個人的執行業務報酬（9A），以及稿費、版稅、講演鐘點費等（9B），按給付額扣 10%。</div></td>
+              <td data-label="出處"><div><a href="https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=G0340028&amp;flno=2">各類所得扣繳率標準 第 2 條第 1 項第 8 款</a>（法務部全國法規資料庫）；<a href="https://www.etax.nat.gov.tw/etwmain/tax-info/understanding/tax-q-and-a/national/individual-income-tax/withheld-rule/rule/a7BB6R9">財政部稅務入口網 1504 執行業務所得如何辦理扣繳</a></div></td>
+              <td data-label="年度"><div>2026（標準 110-06-30 修正版仍有效；稅務入口網頁面 115-04-10 更新）</div></td>
+            </tr>
+            <tr>
+              <td data-label="規則"><div>免扣繳門檻</div></td>
+              <td data-label="做法"><div>每次應扣繳稅額不超過 NT$2,000 免扣繳，9A 與 9B 相同。</div></td>
+              <td data-label="出處"><div><a href="https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=G0340028&amp;flno=13">各類所得扣繳率標準 第 13 條第 1 項</a>；稅務入口網 1504（同上）</div></td>
+              <td data-label="年度"><div>2026</div></td>
+            </tr>
+            <tr>
+              <td data-label="規則"><div>補充保費費率</div></td>
+              <td data-label="做法"><div>2.11%（自 110 年 1 月 1 日起，115 年仍適用）。9A、9B 都屬「執行業務收入」（補充保費所得代碼 65）。</div></td>
+              <td data-label="出處"><div><a href="https://www.nhi.gov.tw/ch/dl-64814-5f26c2b955c24ebbbbf1479877ecfb7e-1.pdf">健保署《扣取及繳納補充保險費實務手冊》115.01 版</a>；<a href="https://www.nhi.gov.tw/ch/dl-10392-b1d1f21fddd64fa6ba3391b3c661db65-1.pdf">健保署 115 年補充保險費資料簡表</a>（PDF）</div></td>
+              <td data-label="年度"><div>2026（115 年）</div></td>
+            </tr>
+            <tr>
+              <td data-label="規則"><div>補充保費門檻與上限</div></td>
+              <td data-label="做法"><div>單次給付達 NT$20,000（含）才扣；單次超過 NT$1,000 萬的部分不扣（費基最多 NT$1,000 萬）。9A、9B 相同。</div></td>
+              <td data-label="出處"><div><a href="https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=L0060027&amp;flno=4">全民健康保險扣取及繳納補充保險費辦法 第 4 條第 1 項、第 2 項第 1 款</a>；<a href="https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=L0060001&amp;flno=31">全民健康保險法 第 31 條</a></div></td>
+              <td data-label="年度"><div>2026（辦法 113-03-20 修正版）</div></td>
+            </tr>
+            <tr>
+              <td data-label="規則"><div>職業工會投保免扣</div></td>
+              <td data-label="做法"><div>無一定雇主或自營作業而參加職業工會者、專技人員自行執業者，其執行業務收入免扣補充保費；需提出投保證明。</div></td>
+              <td data-label="出處"><div>補充保險費辦法 第 4 條第 2 項第 3 款、第 5 條（同上連結）；實務手冊 115.01 版「執行業務收入」一節</div></td>
+              <td data-label="年度"><div>2026</div></td>
+            </tr>
+            <tr>
+              <td data-label="規則"><div>補充保費尾數</div></td>
+              <td data-label="做法"><div>以元為單位，角以下四捨五入。</div></td>
+              <td data-label="出處"><div>實務手冊 115.01 版各案例說明：「保險費之繳納，以元為單位，角以下 4 捨 5 入」</div></td>
+              <td data-label="年度"><div>2026</div></td>
+            </tr>
+            <tr>
+              <td data-label="規則"><div>扣繳稅額尾數</div></td>
+              <td data-label="做法"><div><strong>本工具自訂：</strong>給付額 × 10% 算到元，角以下捨去，再判斷是否超過 NT$2,000。所以給付 NT$20,010 起才扣稅。</div></td>
+              <td data-label="出處"><div>官方法規與稅務入口網都<strong>沒有</strong>寫明尾數處理方式（2026-10-14 查詢）。此做法與部分公部門領據範本寫的「執行業務收入達 20,010 元（含）以上須扣繳 10%」一致，但不是國稅局的明文規定。</div></td>
+              <td data-label="年度"><div>—</div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>常見誤會</h2>
+      <ul>
+        <li><strong>補充保費和扣繳的門檻不一樣。</strong>給付 NT$20,000～20,009 時，本工具不扣稅，但仍要扣 2.11% 補充保費。</li>
+        <li><strong>9B 稿費的門檻跟 9A 一樣。</strong>「稿費每次 NT$5,000 以下免扣繳」的說法只適用非境內居住者。</li>
+        <li><strong>不能拆單規避。</strong>門檻以「每次給付」判斷；同一筆款項刻意拆成多次給付，可能被認定為規避扣繳，本工具不提供這類建議。</li>
+        <li><strong>扣繳之後還有申報義務。</strong>給付單位應在期限內繳納扣繳稅款與補充保費，並申報扣繳憑單與補充保費明細；本工具不處理申報。</li>
+      </ul>
+
+      <h2>免責聲明</h2>
+      <ul class="small">
+        <li>本頁為非官方工具，內容由 AI（Claude）整理與撰寫，經人類核准發布；與財政部、國稅局、健保署及 Anthropic 均無關。</li>
+        <li>計算結果僅供試算，不構成稅務、法律或會計建議。實際扣繳稅額、補充保費與申報方式，以國稅局與健保署規定為準。</li>
+        <li>規則整理日期：2026-10-14。法規若有修正，本頁可能來不及更新。</li>
+        <li>本工具不回答個案問題。所得類別判斷（例如授課鐘點費屬薪資還是 9B）請洽所在地國稅局或專業人士。</li>
+      </ul>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>本站內容由 AI 撰寫、人類核准發布。本站為獨立實驗，與 Anthropic 無關。</p>
+    <p>最後更新：<time datetime="2026-10-14">2026-10-14</time></p>
+  </div>
+</footer>
+
+<script>
+/* ===== 計算核心（純函式，不碰畫面；可單獨複製出來測試） ===== */
+var LR_RULES = {
+  taxRatePercent: 10,        // 各類所得扣繳率標準 §2 I(8)：境內居住者執行業務報酬 10%
+  taxExemptMaxTax: 2000,     // 同標準 §13 I：每次應扣繳稅額不超過 2,000 元免扣繳
+  nhiRatePerTenThousand: 211,// 補充保險費率 2.11%（健保署實務手冊 115.01 版）
+  nhiMinPayment: 20000,      // 補充保險費辦法 §4 I：單次給付達 2 萬元始扣
+  nhiMaxBase: 10000000,      // 同辦法 §4 II(1)：單次逾 1,000 萬元部分免扣
+  maxGross: 9999999999       // 本工具可輸入的上限（99 億）
+};
+
+/**
+ * 計算一張勞務報酬單。
+ * @param {{category:'9A'|'9B', gross:number, nhiExempt:boolean}} input  gross 為整數元
+ * @returns {{ok:boolean, error?:string, gross?:number, taxComputed?:number, tax?:number,
+ *            taxExempt?:boolean, taxBorderline?:boolean, nhiBase?:number, nhi?:number,
+ *            nhiReason?:string, net?:number}}
+ */
+function calcLaborReceipt(input) {
+  var cat = input && input.category;
+  var gross = input && input.gross;
+  if (cat !== '9A' && cat !== '9B') return { ok: false, error: '所得類別只能是 9A 或 9B。' };
+  if (typeof gross !== 'number' || !Number.isSafeInteger(gross)) return { ok: false, error: '給付總額要是整數元。' };
+  if (gross <= 0) return { ok: false, error: '給付總額要大於 0。' };
+  if (gross > LR_RULES.maxGross) return { ok: false, error: '金額超過本工具可處理的範圍。' };
+
+  // 扣繳稅額：gross × 10%，算到元、角以下捨去（本工具自訂規則，見頁面說明）。全程整數運算。
+  var taxComputed = (gross - (gross % 10)) / 10;
+  var taxExempt = taxComputed <= LR_RULES.taxExemptMaxTax;
+  var tax = taxExempt ? 0 : taxComputed;
+  // 20,001～20,009：若不先捨去角，應扣稅額會略超過 2,000 元，屬於規定沒寫清楚的區間
+  var taxBorderline = gross > 20000 && gross < 20010;
+
+  // 補充保費：費基上限 1,000 萬；費率 2.11%；角以下四捨五入（健保署實務手冊）
+  var nhiBase = Math.min(gross, LR_RULES.nhiMaxBase);
+  var nhi = 0, nhiReason;
+  if (input.nhiExempt) {
+    nhiReason = 'exempt';
+  } else if (gross < LR_RULES.nhiMinPayment) {
+    nhiReason = 'below';
+  } else {
+    var x = nhiBase * LR_RULES.nhiRatePerTenThousand + 5000; // 乘以 10000 倍後加 0.5 元，做四捨五入
+    nhi = (x - (x % 10000)) / 10000;
+    nhiReason = gross > LR_RULES.nhiMaxBase ? 'capped' : 'charged';
+  }
+
+  return {
+    ok: true, category: cat, gross: gross,
+    taxComputed: taxComputed, tax: tax, taxExempt: taxExempt, taxBorderline: taxBorderline,
+    nhiBase: nhiBase, nhi: nhi, nhiReason: nhiReason,
+    net: gross - tax - nhi
+  };
+}
+
+/** 金額轉中文大寫，例如 20010 → 貳萬零壹拾元整（支援到 9999 億） */
+function toChineseUpper(n) {
+  if (!Number.isSafeInteger(n) || n < 0 || n > 999999999999) return '';
+  if (n === 0) return '零元整';
+  var D = '零壹貳參肆伍陸柒捌玖', U = ['', '拾', '佰', '仟'], S = ['', '萬', '億'];
+  function group(g) {
+    var s = '', zero = false;
+    for (var i = 3; i >= 0; i--) {
+      var d = Math.floor(g / Math.pow(10, i)) % 10;
+      if (d === 0) { if (s !== '') zero = true; }
+      else { if (zero) { s += '零'; zero = false; } s += D.charAt(d) + U[i]; }
+    }
+    return s;
+  }
+  var groups = [];
+  while (n > 0) { groups.push(n % 10000); n = Math.floor(n / 10000); }
+  var out = '', needZero = false;
+  for (var k = groups.length - 1; k >= 0; k--) {
+    var g = groups[k];
+    if (g === 0) { if (out !== '') needZero = true; continue; }
+    if (out !== '' && (needZero || g < 1000)) out += '零';
+    out += group(g) + S[k];
+    needZero = false;
+  }
+  return out + '元整';
+}
+
+/** 身分證／新式居留證號檢查碼（只在本機檢查） */
+function checkTwId(id) {
+  id = (id || '').trim().toUpperCase();
+  if (!id) return 'empty';
+  if (!/^[A-Z][1289]\d{8}$/.test(id)) return 'format';
+  var map = 'ABCDEFGHJKLMNPQRSTUVXYWZIO'; // A=10, B=11 … 依內政部編碼順序
+  var code = map.indexOf(id.charAt(0)) + 10;
+  var sum = Math.floor(code / 10) + (code % 10) * 9;
+  for (var i = 1; i <= 8; i++) sum += Number(id.charAt(i)) * (9 - i);
+  sum += Number(id.charAt(9));
+  return sum % 10 === 0 ? 'ok' : 'checksum';
+}
+/* ===== 計算核心結束 ===== */
+
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var fmt = function (n) { return 'NT$' + n.toLocaleString('zh-TW'); };
+  var BLANK = '<span class="blank">＿＿＿＿＿＿</span>';
+
+  function setText(id, v) {
+    var el = $(id);
+    if (v) { el.textContent = v; } else { el.innerHTML = BLANK; }
+  }
+  function cat() { return document.querySelector('input[name="cat"]:checked').value; }
+
+  function parseGross(raw) {
+    var s = (raw || '').replace(/[,，\s]/g, '').replace(/^NT\$?/i, '');
+    if (s === '') return { empty: true };
+    if (!/^\d+$/.test(s)) return { error: '請只填整數元的數字（不要有小數點或其他文字）。' };
+    return { value: Number(s) };
+  }
+
+  function rocDate(v) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || '');
+    if (!m) return '';
+    var y = Number(m[1]) - 1911;
+    return '民國 ' + y + ' 年 ' + Number(m[2]) + ' 月 ' + Number(m[3]) + ' 日（' + v + '）';
+  }
+
+  function itemText() {
+    if (cat() === '9B') return $('item9b').value;
+    var v = $('item9a').value;
+    if (v === '__custom') return $('item9a-custom').value.trim();
+    return v;
+  }
+
+  function update() {
+    var is9A = cat() === '9A';
+    $('item9a-wrap').hidden = !is9A;
+    $('item9b-wrap').hidden = is9A;
+    $('item9a-custom-wrap').hidden = !(is9A && $('item9a').value === '__custom');
+
+    // 身分證
+    var idState = checkTwId($('idno').value);
+    var idMsg = $('idno-msg');
+    $('idno').setAttribute('aria-invalid', idState === 'format' || idState === 'checksum' ? 'true' : 'false');
+    idMsg.className = (idState === 'format' || idState === 'checksum') ? 'err' : 'hint';
+    idMsg.textContent = {
+      empty: '只在本機檢查格式與檢查碼，不會送出。',
+      ok: '格式與檢查碼正確（只在本機檢查）。',
+      format: '格式看起來不是身分證或新式居留證號（1 個英文字母＋9 個數字）。舊式居留證號請自行核對。',
+      checksum: '檢查碼不符，請再核對一次。'
+    }[idState];
+
+    // 金額
+    var g = parseGross($('gross').value);
+    var grossMsg = $('gross-msg');
+    var res = null;
+    if (g.error) {
+      grossMsg.className = 'err'; grossMsg.textContent = g.error;
+      $('gross').setAttribute('aria-invalid', 'true');
+    } else {
+      $('gross').setAttribute('aria-invalid', 'false');
+      if (!g.empty) {
+        res = calcLaborReceipt({ category: cat(), gross: g.value, nhiExempt: $('union').checked });
+        if (!res.ok) {
+          grossMsg.className = 'err'; grossMsg.textContent = res.error;
+          $('gross').setAttribute('aria-invalid', 'true');
+          res = null;
+        }
+      }
+      if (res || g.empty) {
+        grossMsg.className = 'hint';
+        grossMsg.textContent = '請填扣稅、扣保費之前的總額，整數元。可以有逗號。';
+      }
+    }
+
+    var why = $('r-why');
+    why.innerHTML = '';
+    function addWhy(text, warn) {
+      var li = document.createElement('li');
+      li.textContent = text;
+      if (warn) li.className = 'is-warn';
+      why.appendChild(li);
+    }
+
+    if (res) {
+      $('r-gross').textContent = fmt(res.gross);
+      $('r-tax').textContent = fmt(res.tax);
+      $('r-nhi').textContent = fmt(res.nhi);
+      $('r-net').textContent = fmt(res.net);
+      if (res.taxExempt) {
+        addWhy('扣繳稅額：' + res.gross.toLocaleString('zh-TW') + ' × 10% = ' + res.taxComputed.toLocaleString('zh-TW') + ' 元，不超過 2,000 元，免扣繳。');
+      } else {
+        addWhy('扣繳稅額：' + res.gross.toLocaleString('zh-TW') + ' × 10% = ' + res.taxComputed.toLocaleString('zh-TW') + ' 元（角以下捨去），超過 2,000 元，要扣繳。');
+      }
+      if (res.taxBorderline) {
+        addWhy('注意：給付額在 20,001～20,009 元之間。本工具依「角以下捨去」判定免扣繳，但官方沒有明文寫出尾數規則；若要保守處理，請先向國稅局確認。', true);
+      }
+      if (res.nhiReason === 'exempt') addWhy('補充保費：所得人在職業工會（或以專技自行執業身分）投保，免扣。請留存投保證明。');
+      else if (res.nhiReason === 'below') addWhy('補充保費：單次給付未達 20,000 元，免扣。');
+      else if (res.nhiReason === 'capped') addWhy('補充保費：單次給付超過 1,000 萬元，只就 1,000 萬元計算：10,000,000 × 2.11% = ' + res.nhi.toLocaleString('zh-TW') + ' 元。', true);
+      else addWhy('補充保費：' + res.nhiBase.toLocaleString('zh-TW') + ' × 2.11% = ' + res.nhi.toLocaleString('zh-TW') + ' 元（角以下四捨五入）。');
+      addWhy('實付金額：給付總額 − 扣繳稅額 − 補充保費 = ' + res.net.toLocaleString('zh-TW') + ' 元。');
+    } else {
+      ['r-gross', 'r-tax', 'r-nhi', 'r-net'].forEach(function (id) { $(id).textContent = '—'; });
+      addWhy(g.empty ? '請先填寫給付總額。' : '給付總額格式不正確，請依欄位下方提示修正。');
+    }
+
+    // 報酬單
+    $('p-code').textContent = cat();
+    $('p-catname').textContent = is9A ? '執行業務所得' : '稿費、版稅、樂譜、作曲、編劇、漫畫、講演之鐘點費';
+    setText('p-payer', $('payer').value.trim());
+    setText('p-purpose', $('purpose').value.trim());
+    setText('p-item', itemText());
+    setText('p-date', rocDate($('pay-date').value));
+    setText('p-name', $('name').value.trim());
+    setText('p-idno', $('idno').value.trim().toUpperCase());
+    setText('p-addr', $('addr').value.trim());
+    var bank = [$('bank').value.trim(), $('acct').value.trim()].filter(Boolean).join('　帳號 ');
+    if (!$('bank').value.trim() && $('acct').value.trim()) bank = '帳號 ' + $('acct').value.trim();
+    setText('p-bank', bank);
+    setText('p-gross', res ? fmt(res.gross) : '');
+    setText('p-tax', res ? fmt(res.tax) : '');
+    setText('p-nhi', res ? fmt(res.nhi) + (res.nhiReason === 'exempt' ? '（職業工會投保免扣）' : '') : '');
+    setText('p-net', res ? fmt(res.net) : '');
+    setText('p-net-upper', res ? '新臺幣' + toChineseUpper(res.net) : '');
+  }
+
+  // 預設給付日期為今天（本機時間）
+  var d = new Date();
+  var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+  $('pay-date').value = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+
+  var form = $('lr-form');
+  form.addEventListener('input', update);
+  form.addEventListener('change', update);
+  form.addEventListener('submit', function (e) { e.preventDefault(); });
+  $('btn-print').addEventListener('click', function () { window.print(); });
+  $('btn-clear').addEventListener('click', function () {
+    form.reset();
+    $('pay-date').value = '';
+    update();
+  });
+  update();
+})();
+</script>
+</body>
+</html>

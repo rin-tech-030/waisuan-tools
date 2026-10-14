@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claude Code Windows 中文錯誤訊息對照表（非官方）</title>
+<meta name="description" content="非官方、內容由 AI 整理：中文 Windows 上使用 Claude Code 常見的錯誤訊息原文、原因與白話解法，附官方文件與 GitHub issue 來源。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&amp;display=swap">
+<link rel="stylesheet" href="style.css">
+<style>
+  /* 只作用在本頁對照表：長錯誤訊息自動斷行，避免手機爆版 */
+  #errors code {
+    font-family: ui-monospace, Consolas, "Courier New", monospace;
+    font-size: 0.88em;
+    background: var(--surface-2);
+    padding: 0 0.25em;
+    border-radius: 3px;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+  #errors td { overflow-wrap: anywhere; }
+  #errors td > div { min-width: 0; }
+  #errors td ol, #errors td ul { margin: 0; padding-left: 1.2em; }
+  #errors td li + li { margin-top: 0.25em; }
+  #errors .msg { display: block; margin-bottom: 0.35em; }
+  #errors .note { display: block; margin-top: 0.35em; font-size: 0.9em; color: var(--text-muted); }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到主要內容</a>
+<header class="site-header">
+  <div class="wrap wrap--wide">
+    <a class="brand" href="https://github.com/rin-tech-030/waisuan-tools">300 元 <span>AI 創業實驗</span></a>
+    <nav aria-label="主選單">
+      <ul class="nav">
+        <li><a href="https://github.com/rin-tech-030/waisuan-tools">首頁</a></li>
+        <li><a href="https://github.com/rin-tech-030/waisuan-tools">公開帳本</a></li>
+        <li><a href="https://github.com/rin-tech-030/waisuan-tools">決策紀錄</a></li>
+        <li><a href="windows-errors.html" aria-current="page">免費工具</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap wrap--wide">
+    <p class="eyebrow">免費工具 #1</p>
+    <h1>Claude Code Windows 中文錯誤訊息對照表</h1>
+
+    <div class="notice" role="note">
+      <strong>非官方、與 Anthropic 無關、內容由 AI 整理、整理日期 2026-10-14</strong>
+      <p>本頁是獨立實驗的一部分，不是 Anthropic 的產品或文件。遇到問題請以<a href="https://code.claude.com/docs/zh-TW/troubleshoot-install">官方繁中排錯頁</a>為準。Claude Code 更新很快，這裡的內容可能隨時過時。</p>
+    </div>
+
+    <p class="lede">官方排錯頁的對照表只有英文訊息，中文 Windows 使用者看到的字樣很難對得上。這一頁想把它們接起來：把畫面上的字貼進搜尋框，就能找到原因和解法。</p>
+
+    <div class="notice">
+      <strong>使用前先看</strong>
+      <ul>
+        <li>「錯誤訊息」欄的字樣都有出處：英文來自官方排錯頁或 GitHub issue；中文只收錄有網頁可查的實際畫面文字，沒有來源的就只放英文原文，不自己翻譯冒充系統訊息。</li>
+        <li>中文 Windows 上很多訊息仍是英文；同一個錯誤的中文措辭也可能因 Windows 版本而略有不同，搜尋時可只打幾個關鍵字（例如「無法辨識」「TLS」「PATH」）。</li>
+        <li>「官方頁未涵蓋」的解法都是 GitHub issue 裡使用者自己回報的暫時做法，不是官方修正，請先看副作用說明再決定要不要試。</li>
+        <li>本表只挑出跟 Windows 有關的項目，沒有逐列轉述官方頁；macOS、Linux 問題請直接看官方頁。</li>
+      </ul>
+    </div>
+
+    <h2>搜尋</h2>
+    <div class="search" id="search-box">
+      <label for="q">輸入關鍵字或貼上錯誤訊息片段（例如：無法辨識、PATH、TLS、亂碼、防毒）</label>
+      <input type="search" id="q" name="q" autocomplete="off" placeholder="搜尋錯誤訊息、主題、issue 編號">
+      <ul class="chips" aria-label="依類型篩選">
+        <li><button type="button" class="chip" data-filter="all" aria-pressed="true">全部</button></li>
+        <li><button type="button" class="chip" data-filter="official" aria-pressed="false">官方頁已涵蓋</button></li>
+        <li><button type="button" class="chip" data-filter="gap" aria-pressed="false">官方頁未涵蓋</button></li>
+      </ul>
+    </div>
+    <p class="result-count" id="count" role="status" aria-live="polite"></p>
+
+    <div class="table-wrap">
+      <table class="stack" id="errors">
+        <caption class="small muted">共 30 筆。「官方頁已涵蓋」代表官方繁中排錯頁有對應段落；「官方頁未涵蓋」代表只在 GitHub issue 或社群文章中出現的問題。</caption>
+        <thead>
+          <tr>
+            <th scope="col">類型</th>
+            <th scope="col">問題主題</th>
+            <th scope="col">錯誤訊息字樣（中文／英文原文）</th>
+            <th scope="col">原因</th>
+            <th scope="col">白話解法</th>
+            <th scope="col">來源</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!--
+            新增一筆：複製任一 <tr>...</tr>，改內容即可。
+            data-type 只能是 official 或 gap；data-keywords 放額外的搜尋用字（以空白分隔，不會顯示）。
+            規則：錯誤訊息字樣一定要有出處；中文字樣沒有來源就只放英文原文；缺口類的解法只寫 issue 中有人回報過的做法並註明。
+          -->
+
+          <!-- ===== 找不到 claude 指令／PATH ===== -->
+          <tr data-type="official" data-keywords="PATH 環境變數 找不到 claude 指令 command not found CommandNotFoundException 無法辨識的詞彙">
+            <td data-label="類型"><div><span class="tag">官方頁已涵蓋</span></div></td>
+            <td data-label="問題主題"><div>PowerShell 輸入 claude 說找不到指令</div></td>
+            <td data-label="錯誤訊息"><div><span class="msg">中文：<code>claude : 無法辨識 'claude' 詞彙是否為 Cmdlet、函數、指令檔或可執行程式的名稱。</code></span><span class="msg">英文：<code>claude : The term 'claude' is not recognized as the name of a cmdlet</code></span></div></td>
+            <td data-label="原因"><div>安裝其實完成了，但安裝資料夾 <code>%USERPROFILE%\.local\bin</code> 沒有加進 PATH（系統找程式的路徑清單），或是你還在用安裝前就開著的舊視窗。</div></td>
+            <td data-label="白話解法"><div><ol>
+              <li>把所有 PowerShell 視窗關掉，重開一個再輸入 <code>claude --version</code>。</li>
+              <li>還是不行，輸入 <code>Test-Path "$env:USERPROFILE\.local\bin\claude.exe"</code>：出現 <code>False</code> 代表沒裝成功，重新安裝；出現 <code>True</code> 就照下一列「Native installation exists…」把資料夾加進 PATH。</li>
+              <li>如果是在 VS Code 等編輯器裡的終端機，要把整個編輯器關掉重開。</li>
+            </ol></div></td>
+            <td data-label="來源"><div><a href="https://code.claude.com/docs/zh-TW/troubleshoot-install#command-not-found-claude-after-installation">官方：安裝後找不到 claude</a>；中文字樣：<a href="https://matthung0807.blogspot.com/2026/03/windows-11-claude-code-installation.html">matthung0807 部落格</a>、<a href="https://coolkidlab.com/newbie-pitfalls/claude-code-windows-setup.html">coolkidlab</a></div></td>
+          </tr>
+          <tr data-type="official" data-keywords="CMD 命令提示字元 PATH 找不到 claude 環境變數 internal external command">
+            <td data-label="類型"><div><span class="tag">官方頁已涵蓋</span></div></td>
+            <td data-label="問題主題"><div>命令提示字元（CMD）輸入 claude 說找不到</div></td>
+            <td data-label="錯誤訊息"><div><span class="msg">中文（片段）：<code>不是內部或外部命令</code></span><span class="msg">英文：<code>'claude' is not recognized as an internal or external command</code></span></div></td>
+            <td data-label="原因"><div>跟上一列相同：安裝資料夾不在 PATH 裡，或視窗是安裝前開的。</div></td>
+            <td data-label="白話解法"><div><ol>
+              <li>關掉 CMD 重開，再輸入 <code>claude --version</code>。</li>
+              <li>輸入 <code>dir "%USERPROFILE%\.local\bin\claude.exe"</code>，若顯示找不到檔案就是沒裝好，重新安裝。</li>
+              <li>檔案在的話：開始功能表搜尋「環境變數」→「編輯您帳戶的環境變數」→ 使用者變數的 Path → 新增 <code>%USERPROFILE%\.local\bin</code>，按確定後重開終端機。</li>
+            </ol></div></td>
+            <td data-label="來源"><div><a href="https://code.claude.com/docs/zh-TW/troubleshoot-install#verify-your-path">官方：驗證您的 PATH</a>；中文片段：<a href="https://coolkidlab.com/newbie-pitfalls/claude-code-windows-setup.html">coolkidlab</a></div></td>
+          </tr>
+          <tr data-type="official" data-keywords="PATH Setup notes 安裝完成 環境變數 local bin">
+            <td data-label="類型"><div><span class="tag">官方頁已涵蓋</span></div></td>
+            <td data-label="問題主題"><div>安裝結尾提示「不在 PATH 裡」</div></td>
+            <td data-label="錯誤訊息"><div><code>Native installation exists but C:\Users\&lt;使用者&gt;\.local\bin is not in your PATH.</code></div></td>
+            <td data-label="原因"><div>安裝程式把 claude.exe 放好了，但不會自動幫你改 PATH，只在 <code>Setup notes:</code> 底下提醒。</div></td>
+            <td data-label="白話解法"><div><ol>
+              <li>在 PowerShell 依序貼上這兩行（只會「加上」一條路徑，不會刪掉原本的）：<br><code>$p = [Environment]::GetEnvironmentVariable('PATH', 'User')</code><br><code>[Environment]::SetEnvironmentVariable('PATH', "$p;$env:USERPROFILE\.local\bin", 'User')</code></li>
+              <li>關掉所有終端機視窗再開一個，輸入 <code>claude --version</code> 看到版本號就成功。</li>
+            </ol></div></td>
+            <td data-label="來源"><div><a href="https://code.claude.com/docs/zh-TW/troubleshoot-install#verify-your-path">官方：驗證您的 PATH</a>；實例：<a href="https://matthung0807.blogspot.com/2026/03/windows-11-claude-code-installation.html">matthung0807 部落格</a></div></td>
+          </tr>
+          <tr data-type="official" data-keywords="where.exe 找不到 衝突 重複安裝 npm winget">
+            <td data-label="類型"><div><span class="tag">官方頁已涵蓋</span></div></td>
+            <td data-label="問題主題"><div>where.exe 找不到 claude，或裝了好幾份</div></td>
+            <td data-label="錯誤訊息"><div><code>INFO: Could not find files for the given pattern(s).</code></div></td>
+            <td data-label="原因"><div>PATH 上完全沒有 claude；也可能你用 npm、WinGet、原生安裝各裝過一次，彼此打架造成版本錯亂。</div></td>
+            <td data-label="白話解法"><div><ol>
+              <li>用 <code>Test-Path "$env:USERPROFILE\.local\bin\claude.exe"</code> 確認原生版在不在；在的話照「Native installation exists…」那列補 PATH。</li>
+              <li>只留一種安裝方式（官方建議原生版）。多出來的可用 <code>npm uninstall -g @anthropic-ai/claude-code</code> 或 <code>winget uninstall Anthropic.ClaudeCode</code> 移除。</li>
+            </ol></div></td>
+            <td data-label="來源"><div><a href="https://code.claude.com/docs/zh-TW/troubleshoot-install#check-for-conflicting-installations">官方：檢查衝突的安裝</a></div></td>
+          </tr>
+          <tr data-type="official" data-keywords="更新後 update 找不到 claude.exe 備份 old">
+            <td data-label="類型"><div><span class="tag">官方頁已涵蓋</span></div></td>
+            <td data-label="問題主題"><div>剛更新完 claude 就不見了</div></td>
+            <td data-label="錯誤訊息"><div><code>'claude' is not recognized</code>（更新後立刻出現）</div></td>
+            <td data-label="原因"><div>Windows 上更新時會先把舊的 claude.exe 改名成備份，新版本若沒搬進去，資料夾裡就只剩備份檔 <code>claude.exe.old.數字</code>。</div></td>
+            <td data-label="白話解法"><div><ol>
+              <li>在 PowerShell 貼上：<br><code>Get-ChildItem "$env:USERPROFILE\.local\bin\claude.exe.old.*" | Sort-Object Name | Select-Object -Last 1 | Rename-Item -NewName claude.exe</code></li>
+              <li>輸入 <code>claude --version</code> 確認。沒有備份檔或還是壞的，就重跑安裝指令 <code>irm https://claude.ai/install.ps1 | iex</code>。</li>
+            </ol></div></td>
+            <td data-label="來源"><div><a href="https://code.claude.com/docs/zh-TW/troubleshoot-install#claude-exe-missing-after-an-update-on-windows">官方：更新後 claude.exe 遺失</a></div></td>
+          </tr>
+
+          <!-- ===== 安裝指令貼錯地方 ===== -->
+          <tr data-type="official" data-keywords="irm CMD 命令提示字元 PowerShell 安裝指令 貼錯 install.ps1">
+            <td data-label="類型"><div><span class="tag">官方頁已涵蓋</span></div></td>
+            <td data-label="問題主題"><div>貼上安裝指令後說不認得 irm</div></td>
+            <td data-label="錯誤訊息"><div><span class="msg">中文（片段）：<code>irm 不是內部或外部命令</code></span><span class="msg">英文：<code>'irm' is not recognized</code></span></div></td>
+            <td data-label="原因"><div><code>irm</code> 是 PowerShell 才有的指令，你開到的是命令提示字元（CMD）。</div></td>
+            <td data-label="白話解法"><div><ol>
+              <li>開始功能表搜尋「PowerShell」打開（提示字元開頭會是 <code>PS C:\</code>），再貼一次 <code>irm https://claude.ai/install.ps1 | iex</code>。</li>
+              <li>或留在 CMD，改貼 CMD 版：<code>curl -fsSL https://claude.ai/install.cmd -o install.cmd &amp;&amp; install.cmd &amp;&amp; del install.cmd</code></li>
+              <li>這個錯誤跟「執行原則」無關，不用去改它。</li>
+            </ol></div></td>
+            <td data-label="來源"><div><a href="https://code.claude.com/docs/zh-TW/troubleshoot-install#wrong-install-command-on-windows">官方：Windows 上的錯誤安裝命令</a>；中文片段：<a href="https://coolkidlab.com/newbie-pitfalls/claude-code-windows-setup.html">coolkidlab</a></div></td>
+          </tr>
+          <tr data-type="official" data-keywords="&amp;&amp; PowerShell CMD 安裝指令 貼錯 statement separator">
+            <td data-label="類型"><div><span class="tag">官方頁已涵蓋</span></div></td>
+            <td data-label="問題主題"><div>在 PowerShell 貼了 CMD 版安裝指令</div></td>
+            <td data-label="錯誤訊息"><div><code>The token '&amp;&amp;' is not a valid statement separator</code></div></td>
+            <td data-label="原因"><div>你在 PowerShell 裡，卻貼了給 CMD 用的指令（含 <code>&amp;&amp;</code>）。</div></td>
+            <td data-label="白話解法"><div>改貼 PowerShell 版：<code>irm https://claude.ai/install.ps1 | iex</code></div></td>
+            <td data-label="來源"><div><a href="https://code.claude.com/docs/zh-TW/troubleshoot-install#wrong-install-command-on-windows">官方：Windows 上的錯誤安裝命令</a></div></td>
+          </tr>
+          <tr data-type="official" data-keywords="fsSL bash curl macOS Linux 安裝指令 貼錯 Invoke-WebRequest">
+            <td data-label="類型"><div><span class="tag">官方頁已涵蓋</span></div></td>
+            <td data-label="問題主題"><div>在 Windows 貼了 macOS／Linux 的安裝指令</div></td>
+            <td data-label="錯誤訊息"><div><span class="msg"><code>A parameter cannot be found that matches parameter name 'fsSL'</code></span><span class="msg"><code>'bash' is not recognized as the name of a cmdlet</code></span></div></td>
+            <td data-label="原因"><div>複製到 <code>curl -fsSL … | bash</code> 那行，那是給 Mac／Linux 的。PowerShell 裡的 curl 其實是別的指令，也沒有 bash。</div></td>
+            <td data-label="白話解法"><div>改貼 Windows 版：<code>irm https://claude.ai/install.ps1 | iex</code>。若指令只印出一大堆程式碼卻沒安裝，代表你少貼了後面的 <code>| iex</code>。</div></td>
+            <td data-label="來源"><div><a href="https://code.claude.com/docs/zh-TW/troubleshoot-install#wrong-install-command-on-windows">官方：Windows 上的錯誤安裝命令</a></div></td>
+          </tr>
+          <tr data-type="official" data-keywords="HTML DOCTYPE XmlDocument ParserError ParseException iex 地區 region 網頁">
+            <td data-label="類型"><div><span class="tag">官方頁已涵蓋</span></div></td>
+            <td data-label="問題主題"><div>安裝指令下載到的是網頁而不是安裝程式</div></td>
+            <td data-label="錯誤訊息"><div><span class="msg">CMD：<code>&lt; was unexpected at this time.</code>（第一行會依系統語言顯示，後面接著 <code>&lt;!DOCTYPE html&gt;</code>）</span><span class="msg">PowerShell：<code>The term 'System.Xml.XmlDocument' is not recognized</code>、<code>Missing argument in parameter list.</code>、<code>ParserError</code>／<code>ParseException</code></span><span class="msg"><code>App unavailable in region</code></span></div></td>
+            <td data-label="原因"><div>網址回傳的是網頁、XML 或錯誤頁，不是安裝程式。常見是暫時的網路／服務問題、公司網路攔截，或所在地區不支援。</div></td>
+            <td data-label="白話解法"><div><ol>
+              <li>畫面有 <code>App unavailable in region</code>：所在國家／地區不支援，換網路也不會好。</li>
+              <li>其他情況先等幾分鐘重試。</li>
+              <li>還是不行，改用 WinGet 安裝：<code>winget install Anthropic.ClaudeCode</code>（注意：WinGet 版預設不會自動更新）。</li>
+            </ol></div></td>
+            <td data-label="來源"><div><a href="https://code.claude.com/docs/zh-TW/troubleshoot-install#install-script-returns-html-instead-of-a-shell-script">官方：安裝指令碼傳回 HTML</a></div></td>
+          </tr>
+          <tr data-type="official" data-keywords="403 Forbidden 防火牆 代理 proxy curl 下載">
+            <td data-label="類型"><div><span class="tag">官方頁已涵蓋</span></div></td>
+            <td data-label="問題主題"><div>下載安裝程式被拒絕（403）</div></td>
+            <td data-label="錯誤訊息"><div><code>curl: (22) The requested URL returned error: 403</code></div></td>
+            <td data-label="原因"><div>多半是公司代理伺服器／防火牆擋住下載，或所在地區不支援。</div></td>
+            <td data-label="白話解法"><div><ol>
+              <li>在 PowerShell 輸入 <code>curl.exe -sI https://downloads.claude.ai/claude-code-releases/latest</code>，第一行有 <code>200</code> 才算連得到。</li>
+              <li>連不到又在公司網路：請 IT 放行 <code>downloads.claude.ai</code>，或照「Failed to fetch version」那列設定代理伺服器。</li>
+            </ol></div></td>
+            <td data-label="來源"><div><a href="https://code.claude.com/docs/zh-TW/troubleshoot-install#check-network-connectivity">官方：檢查網路連線</a></div></td>
+          </tr>
+
+          <!-- ===== 網路、TLS、憑證 ===== -->
+          <tr data-type="official" data-keywords="TLS 1.2 SSL 安全通道 schannel PowerShell 5.1 Tls12">
+            <td data-label="類型"><div><span class="tag">官方頁已涵蓋</span></div></td>
+            <td data-label="問題主題"><div>TLS／SSL 連線失敗</div></td>
+            <td data-label="錯誤訊息"><div><span class="msg"><code>Could not create SSL/TLS secure channel</code></span><span class="msg"><code>Could not establish trust relationship for the SSL/TLS secure channel</code></span><span class="msg"><code>schannel: next InitializeSecurityContext failed</code>、<code>curl: (35) TLS connect error</code></span></div></td>
+            <td data-label="原因"><div>加密連線的「握手」失敗。舊版 Windows PowerShell 5.1 預設可能沒開 TLS 1.2；公司代理伺服器做連線檢查也會造成。</div></td>
+            <td data-label="白話解法"><div><ol>
+              <li>在同一個 PowerShell 視窗先貼：<code>[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12</code></li>
+              <li>不要關視窗，接著貼安裝指令 <code>irm https://claude.ai/install.ps1 | iex</code>。</li>
+              <li>公司網路仍失敗，看下面「公司憑證」那列。</li>
+            </ol></div></td>
+            <td data-label="來源"><div><a href="https://code.claude.com/docs/zh-TW/troubleshoot-install#tls-or-ssl-connection-errors">官方：TLS 或 SSL 連線錯誤</a></div></td>
+          </tr>
+          <tr data-type="official" data-keywords="憑證撤銷 revocation CRYPT_E curl install.cmd 防火牆 0x80092012 0x80092013">
+            <td data-label="類型"><div><span class="tag">官方頁已涵蓋</span></div></td>
+            <td data-label="問題主題"><div>憑證撤銷檢查被擋</div></td>
+            <td data-label="錯誤訊息"><div><span class="msg"><code>CRYPT_E_NO_REVOCATION_CHECK (0x80092012)</code></span><span class="msg"><code>CRYPT_E_REVOCATION_OFFLINE (0x80092013)</code></span></div></td>
+            <td data-label="原因"><div>已經連上下載伺服器，但網路（常見是公司防火牆）擋住了「檢查憑證有沒有被撤銷」這一步。</div></td>
+            <td data-label="白話解法"><div>三選一：
+              <ol>
+                <li>在 CMD 改用：<code>curl --ssl-revoke-best-effort -fsSL https://claude.ai/install.cmd -o install.cmd &amp;&amp; install.cmd &amp;&amp; del install.cmd</code></li>
+                <li>改在 PowerShell 跑 <code>irm https://claude.ai/install.ps1 | iex</code>（不受這個檢查影響）。</li>
+                <li>或 <code>winget install Anthropic.ClaudeCode</code>。</li>
+              </ol></div></td>
+            <td data-label="來源"><div><a href="https://code.claude.com/docs/zh-TW/troubleshoot-install#tls-or-ssl-connection-errors">官方：TLS 或 SSL 連線錯誤（步驟 4）</a></div></td>
+          </tr>
+          <tr data-type="official" data-keywords="公司 企業 憑證 CA certificate corporate NODE_EXTRA_CA_CERTS proxy">
+            <td data-label="類型"><div><span class="tag">官方頁已涵蓋</span></div></td>
+            <td data-label="問題主題"><div>公司網路的憑證不被信任</div></td>
+            <td data-label="錯誤訊息"><div><span class="msg"><code>unable to get local issuer certificate</code></span><span class="msg"><code>SELF_SIGNED_CERT_IN_CHAIN</code></span></div></td>
+            <td data-label="原因"><div>公司代理伺服器會「拆開檢查」加密連線並換上自己的憑證，Claude Code 不認得這張憑證。</div></td>
+            <td data-label="白話解法"><div><ol>
+              <li>請 IT 把公司的 CA 憑證裝進 Windows 憑證存放區，再重跑安裝。</li>
+              <li>裝好後若使用時還報錯，跟 IT 拿憑證檔（.pem），在 PowerShell 設定：<code>$env:NODE_EXTRA_CA_CERTS = 'C:\path\to\corporate-ca.pem'</code>（路徑換成你的檔案）。</li>
+            </ol></div></td>
+            <td data-label="來源"><div><a href="https://code.claude.com/docs/zh-TW/troubleshoot-install#tls-or-ssl-connection-errors">官方：TLS 或 SSL 連線錯誤（步驟 3）</a></div></td>
+          </tr>
+          <tr data-type="official" data-keywords="代理 proxy HTTPS_PROXY HTTP_PROXY 連不上 下載伺服器 防火牆">
+            <td data-label="類型"><div><span class="tag">官方頁已涵蓋</span></div></td>
+            <td data-label="問題主題"><div>連不上下載伺服器／需要代理伺服器</div></td>
+            <td data-label="錯誤訊息"><div><span class="msg"><code>Failed to fetch version from downloads.claude.ai</code></span><span class="msg"><code>Could not resolve host</code></span></div></td>
+            <td data-label="原因"><div>網路擋住了 <code>downloads.claude.ai</code>，常見是公司防火牆、需要代理伺服器，或地區網路限制。</div></td>
+            <td data-label="白話解法"><div><ol>
+              <li>用 <code>curl.exe -sI https://downloads.claude.ai/claude-code-releases/latest</code> 測試能不能連到。</li>
+              <li>公司要求走代理伺服器的話（網址問 IT 或看瀏覽器設定），在同一個 PowerShell 視窗先設定 <code>$env:HTTP_PROXY</code> 和 <code>$env:HTTPS_PROXY</code> 為代理網址，再跑安裝指令。</li>
+            </ol></div></td>
+            <td data-label="來源"><div><a href="https://code.claude.com/docs/zh-TW/troubleshoot-install#check-network-connectivity">官方：檢查網路連線</a>、<a href="https://code.claude.com/docs/zh-TW/troubleshoot-install#failed-to-fetch-version-from-downloads-claude-ai">Failed to fetch version</a></div></td>
+          </tr>
+          <tr data-type="official" data-keywords="更新 下載中斷 逾時 timeout claude update aborted 代理">
+            <td data-label="類型"><div><span class="tag">官方頁已涵蓋</span></div></td>
+            <td data-label="問題主題"><div>安裝或更新時下載中斷、逾時</div></td>
+            <td data-label="錯誤訊息"><div><span class="msg"><code>The connection dropped while downloading the update</code></span><span class="msg"><code>Download timed out: exceeded the total deadline</code></span><span class="msg"><code>Error: Failed to install native update</code></span></div></td>
+            <td data-label="原因"><div>程式檔很大，下載途中斷線，或 10 分鐘內沒下載完；代理伺服器有時會切斷大檔案。</div></td>
+            <td data-label="白話解法"><div><ol>
+              <li>再跑一次 <code>claude update</code>，通常第二次就好。</li>
+              <li>逾時的話換一個比較快的網路再試。</li>
+              <li>公司網路持續失敗，請 IT 允許從 <code>downloads.claude.ai</code> 完整下載。</li>
+            </ol></div></td>
+            <td data-label="來源"><div><a href="https://code.claude.com/docs/zh-TW/troubleshoot-install#the-connection-dropped-while-downloading-the-update">官方：下載更新時連線中斷</a></div></td>
+          </tr>
+
+          <!-- ===== PowerShell、檔案鎖、Git Bash、32 位元 ===== -->
+          <tr data-type="official" data-keywords="執行原則 execution policy 指令碼 script npm ps1 PSSecurityException SecurityError">
+            <td data-label="類型"><div><span class="tag">官方頁已涵蓋</span></div></td>
+            <td data-label="問題主題"><div>PowerShell 執行原則擋住 npm／claude</div></td>
+            <td data-label="錯誤訊息"><div><span class="msg"><code>running scripts is disabled on this system</code></span><span class="msg"><code>PSSecurityException</code></span></div></td>
+            <td data-label="原因"><div>只會發生在「用 npm 安裝」的情況：PowerShell 預設不讓 npm 產生的 <code>.ps1</code> 小檔案執行。用官方 <code>irm … | iex</code> 安裝不受影響。</div></td>
+            <td data-label="白話解法"><div>三選一：
+              <ol>
+                <li>改用官方安裝指令 <code>irm https://claude.ai/install.ps1 | iex</code>（最推薦）。</li>
+                <li>改打 <code>npm.cmd</code>、<code>claude.cmd</code>，效果一樣。</li>
+                <li>放寬自己帳號的限制：<code>Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser</code></li>
+              </ol></div></td>
+            <td data-label="來源"><div><a href="https://code.claude.com/docs/zh-TW/troubleshoot-install#running-scripts-is-disabled-on-this-system">官方：running scripts is disabled</a></div></td>
+          </tr>
+          <tr data-type="official" data-keywords="檔案被占用 鎖檔 防毒 antivirus file lock downloads another process">
+            <td data-label="類型"><div><span class="tag">官方頁已涵蓋</span></div></td>
+            <td data-label="問題主題"><div>安裝時檔案被別的程式占用</div></td>
+            <td data-label="錯誤訊息"><div><code>Failed to download binary: The process cannot access the file ... because it is being used by another process</code></div></td>
+            <td data-label="原因"><div>前一次安裝還在跑，或防毒軟體正在掃描下載到一半的檔案。</div></td>
+            <td data-label="白話解法"><div><ol>
+              <li>關掉其他正在跑安裝的 PowerShell 視窗，等一下讓防毒掃完。</li>
+              <li>刪掉下載暫存再重裝：<br><code>Remove-Item -Recurse -Force "$env:USERPROFILE\.claude\downloads"</code><br><code>irm https://claude.ai/install.ps1 | iex</code></li>
+            </ol></div></td>
+            <td data-label="來源"><div><a href="https://code.claude.com/docs/zh-TW/troubleshoot-install#the-process-cannot-access-the-file-during-windows-install">官方：The process cannot access the file</a></div></td>
+          </tr>
+          <tr data-type="official" data-keywords="Git Bash git-bash Git for Windows CLAUDE_CODE_GIT_BASH_PATH bash.exe shell">
+            <td data-label="類型"><div><span class="tag">官方頁已涵蓋</span></div></td>
+            <td data-label="問題主題"><div>找不到 Git Bash 或 PowerShell</div></td>
+            <td data-label="錯誤訊息"><div><span class="msg">新版：<code>Claude Code on Windows requires either Git for Windows (for bash) or PowerShell</code></span><span class="msg">舊版：<code>Claude Code on Windows requires git-bash</code></span><span class="msg"><code>Claude Code was unable to find CLAUDE_CODE_GIT_BASH_PATH path</code></span></div></td>
+            <td data-label="原因"><div>Claude Code 找不到可用的命令列環境。新版沒有 Git 也能用 PowerShell，所以出現這個錯誤代表兩個都找不到。</div></td>
+            <td data-label="白話解法"><div><ol>
+              <li>最簡單：到 <a href="https://git-scm.com/downloads/win">git-scm.com</a> 安裝 Git for Windows，安裝時選「Add to PATH」，裝完重開終端機。</li>
+              <li>Git 已裝但還是找不到：PowerShell 輸入 <code>where.exe git</code> 找到位置，在 settings.json 的 <code>env</code> 設定 <code>CLAUDE_CODE_GIT_BASH_PATH</code> 指向該安裝裡的 <code>bin\bash.exe</code>。<span class="note">注意：要指向 <code>bash.exe</code>，指向 <code>git-bash.exe</code> 會被忽略。</span></li>
+              <li>都設對了還是不行，可能是公司的端點防護擋住，請 IT 放行 <code>claude.exe</code>。</li>
+            </ol></div></td>
+            <td data-label="來源"><div><a href="https://code.claude.com/docs/zh-TW/troubleshoot-install#claude-code-on-windows-requires-either-git-for-windows-for-bash-or-powershell">官方：需要 Git for Windows 或 PowerShell</a>；舊版字樣：<a href="https://coolkidlab.com/newbie-pitfalls/claude-code-windows-setup.html">coolkidlab</a></div></td>
+          </tr>
+          <tr data-type="gap" data-keywords="Git PATH Executable not found Bash Write Edit Read 檔案操作 System32 19542">
+            <td data-label="類型"><div><span class="tag tag--gap">官方頁未涵蓋</span></div></td>
+            <td data-label="問題主題"><div>讀寫檔案全部失敗，說在 PATH 找不到 Git</div></td>
+            <td data-label="錯誤訊息"><div><code>Executable not found in $PATH: "C:\Program Files\Git\bin"</code></div></td>
+            <td data-label="原因"><div>系統 PATH 設定有問題（回報者的情況是 PATH 前面缺了 <code>C:\Windows\System32\</code>）。Glob、Grep 正常，但 Bash、Read、Write、Edit 全壞。</div></td>
+            <td data-label="白話解法"><div>回報者自己驗證有效的做法（非官方）：
+              <ol>
+                <li>開「編輯系統環境變數」→ 系統變數的 Path。</li>
+                <li>把 <code>C:\Windows\System32\</code> 移到最前面；確認有 <code>C:\Program Files\Git\cmd</code>。</li>
+                <li>重開電腦或所有終端機再試。改系統 PATH 會影響整台電腦，改前先把原本內容複製存檔。</li>
+              </ol></div></td>
+            <td data-label="來源"><div>GitHub issue：<a href="https://github.com/anthropics/claude-code/issues/19542">#19542</a>（回報者自行關閉）</div></td>
+          </tr>
+          <tr data-type="official" data-keywords="32 位元 x86 PowerShell 64 位元 bit">
+            <td data-label="類型"><div><span class="tag">官方頁已涵蓋</span></div></td>
+            <td data-label="問題主題"><div>說不支援 32 位元 Windows</div></td>
+            <td data-label="錯誤訊息"><div><code>Claude Code does not support 32-bit Windows</code></div></td>
+            <td data-label="原因"><div>多半是開到開始功能表裡的「Windows PowerShell (x86)」，它是 32 位元版本，就算電腦是 64 位元也會報這個錯。</div></td>
+            <td data-label="白話解法"><div><ol>
+              <li>在同一個視窗輸入 <code>[Environment]::Is64BitOperatingSystem</code>。</li>
+              <li>顯示 <code>True</code>：關掉視窗，改開名稱後面「沒有」(x86) 的 Windows PowerShell，重跑安裝。</li>
+              <li>顯示 <code>False</code>：你的 Windows 真的是 32 位元，無法安裝 Claude Code。</li>
+            </ol></div></td>
+            <td data-label="來源"><div><a href="https://code.claude.com/docs/zh-TW/troubleshoot-install#claude-code-does-not-support-32-bit-windows">官方：不支援 32 位元 Windows</a></div></td>
+          </tr>
+
+          <!-- ===== 登入 ===== -->
+          <tr data-type="official" data-keywords="登入 驗證碼 貼上 OAuth login code paste Shift+Insert 右鍵 claude auth login">
+            <td data-label="類型"><div><span class="tag">官方頁已涵蓋</span></div></td>
+            <td data-label="問題主題"><div>登入代碼無效或貼不上</div></td>
+            <td data-label="錯誤訊息"><div><code>OAuth error: Invalid code. Please make sure the full code was copied</code></div></td>
+            <td data-label="原因"><div>登入代碼過期，或複製時少了一段；也可能終端機的 Ctrl+V 沒有把字送進輸入框。</div></td>
+            <td data-label="白話解法"><div><ol>
+              <li>重新登入，瀏覽器打開後盡快完成；瀏覽器沒自己打開就按 <code>c</code> 複製網址自己貼到瀏覽器。</li>
+              <li>代碼貼不進去：在 Windows Terminal 改用滑鼠右鍵或 Shift+Insert 貼上。</li>
+              <li>還是不行，關掉後改在終端機輸入 <code>claude auth login</code>，用它的提示貼代碼。</li>
+            </ol></div></td>
+            <td data-label="來源"><div><a href="https://code.claude.com/docs/zh-TW/troubleshoot-install#oauth-error-invalid-code">官方：OAuth 錯誤：無效代碼</a>、<a href="https://code.claude.com/docs/zh-TW/troubleshoot-install#oauth-login-fails-in-wsl2-ssh-or-containers">貼上代碼沒反應</a></div></td>
+          </tr>
+
+          <!-- ===== 官方頁未涵蓋的缺口 ===== -->
+          <tr data-type="gap" data-keywords="憑證 TLS VPN Zscaler certificate 43967">
+            <td data-label="類型"><div><span class="tag tag--gap">官方頁未涵蓋</span></div></td>
+            <td data-label="問題主題"><div>憑證驗證失敗，只有連公司 VPN 時才正常</div></td>
+            <td data-label="錯誤訊息"><div><code>UNKNOWN_CERTIFICATE_VERIFICATION_ERROR</code></div></td>
+            <td data-label="原因"><div>issue 中沒有查明。回報者只觀察到開著公司 VPN（Zscaler）時請求會成功。</div></td>
+            <td data-label="白話解法"><div>目前無官方解法，issue 已因太久沒動靜被關閉。建議到 GitHub issue 追蹤，或開新 issue 附上這個編號。</div></td>
+            <td data-label="來源"><div>GitHub issue：<a href="https://github.com/anthropics/claude-code/issues/43967">#43967</a>（已關閉、未修）</div></td>
+          </tr>
+          <tr data-type="gap" data-keywords="安裝 卡住 沒有進度 當機 hang Setting up 下載 慢 install.ps1 87304">
+            <td data-label="類型"><div><span class="tag tag--gap">官方頁未涵蓋</span></div></td>
+            <td data-label="問題主題"><div>安裝停在「Setting up」好幾分鐘沒動靜</div></td>
+            <td data-label="錯誤訊息"><div><code>Setting up Claude Code...</code>（之後沒有任何訊息，也沒有錯誤）</div></td>
+            <td data-label="原因"><div>安裝程式下載主程式時不顯示進度。檔案很大，網路慢或防毒在掃描時看起來就像當機。</div></td>
+            <td data-label="白話解法"><div><ol>
+              <li>先不要關視窗。另開一個 PowerShell，重複貼：<br><code>Get-Item "$env:USERPROFILE\.claude\downloads\claude-*.exe" | Select-Object Length</code></li>
+              <li>數字一直變大就代表還在下載，耐心等。</li>
+              <li>數字很久都不動，關掉後照「下載中斷、逾時」或「檔案被別的程式占用」那列處理。</li>
+            </ol><span class="note">這是 issue 中描述的確認方法，不是官方步驟。</span></div></td>
+            <td data-label="來源"><div>GitHub issue：<a href="https://github.com/anthropics/claude-code/issues/87304">#87304</a>（已關閉、未改善）</div></td>
+          </tr>
+          <tr data-type="gap" data-keywords="亂碼 CP950 Big5 編碼 輸入法 注音 中文 garbled mojibake chcp 65001 UTF-8 65338">
+            <td data-label="類型"><div><span class="tag tag--gap">官方頁未涵蓋</span></div></td>
+            <td data-label="問題主題"><div>繁中 Windows 打中文或貼中文變亂碼</div></td>
+            <td data-label="錯誤訊息"><div>沒有錯誤訊息，畫面直接變成亂碼。issue 中的實例：<code>設計</code> 變成 <code>&#xFFFD;]&#xFFFD;p</code>；Claude 也可能回覆說你的中文「都變成 □」。</div></td>
+            <td data-label="原因"><div>繁中 Windows 的終端機預設用 Big5（代碼頁 950）送出文字，Claude Code 卻用 UTF-8 解讀，於是中文被拆壞。英文不受影響。</div></td>
+            <td data-label="白話解法"><div>社群提出、<strong>尚未有人確認有效</strong>的兩個做法：
+              <ol>
+                <li>啟動前先切換成 UTF-8：在終端機輸入 <code>chcp 65001</code>，再輸入 <code>claude</code>。只影響這個視窗。</li>
+                <li>開啟「控制台 → 地區 → 系統管理 → 變更系統地區設定 → Beta：使用 Unicode UTF-8 提供全球語言支援」，重開機。<span class="note">副作用：整台電腦生效，依賴 Big5 的舊程式、批次檔或 CSV 可能反而出現亂碼（見 #46486、#81187）。</span></li>
+              </ol>
+              都無效的話，目前無官方解法，建議到 issue 追蹤。</div></td>
+            <td data-label="來源"><div>GitHub issue：<a href="https://github.com/anthropics/claude-code/issues/65338">#65338</a>（已關閉、未修）</div></td>
+          </tr>
+          <tr data-type="gap" data-keywords="亂碼 CP950 Big5 PowerShell 輸出 output encoding OutputEncoding chcp 46486 81187">
+            <td data-label="類型"><div><span class="tag tag--gap">官方頁未涵蓋</span></div></td>
+            <td data-label="問題主題"><div>Claude 執行 PowerShell 時中文輸出變亂碼</div></td>
+            <td data-label="錯誤訊息"><div>沒有錯誤訊息，輸出變成 <code>&#xFFFD;&#xFFFD;&#xFFFD;&#xFFFD;&#xFFFD;</code> 這類替代字元。</div></td>
+            <td data-label="原因"><div>系統代碼頁是 Big5（950）時，PowerShell 的主控台輸出編碼沒有被設成 UTF-8；工作中有人執行過 <code>chcp</code> 也會讓之後的輸出都亂掉。</div></td>
+            <td data-label="白話解法"><div>issue 重現步驟顯示有效的暫時做法（尚未有官方確認）：請 Claude 在會輸出中文的 PowerShell 指令最前面加上 <code>[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new()</code>，並避免在指令中執行 <code>chcp</code>。<span class="note">只對那一次指令有效，不是根本修正。</span></div></td>
+            <td data-label="來源"><div>GitHub issue：<a href="https://github.com/anthropics/claude-code/issues/46486">#46486</a>（已關閉，標為重複）、<a href="https://github.com/anthropics/claude-code/issues/81187">#81187</a>（仍開啟）</div></td>
+          </tr>
+          <tr data-type="gap" data-keywords="中文路徑 資料夾 權限 一律允許 Always allow 規則 亂碼 settings.json 73630">
+            <td data-label="類型"><div><span class="tag tag--gap">官方頁未涵蓋</span></div></td>
+            <td data-label="問題主題"><div>中文資料夾路徑：按了「一律允許」還是每次都問</div></td>
+            <td data-label="錯誤訊息"><div>沒有錯誤訊息。settings.json 裡存下的規則變成亂碼，例如 issue 中 <code>工作區</code> 被存成 <code>&#xFFFD;u&#xFFFD;@&#xFFFD;&#xFFFD;</code>。</div></td>
+            <td data-label="原因"><div>繁中 Windows（Big5）下，含中文的權限規則被用錯誤編碼存檔，之後永遠比對不到；每次重寫設定檔時反斜線還會加倍。</div></td>
+            <td data-label="白話解法"><div>回報者驗證有效的暫時做法：在 CMD 建一個純英文的「捷徑資料夾」指向中文資料夾，例如 <code>mklink /J C:\ws "C:\Users\你的名字\Documents\工作區"</code>，之後都從 <code>C:\ws</code> 開啟專案。<span class="note">刪除 C:\ws 只會刪掉捷徑；但在 C:\ws 裡刪檔案會刪到真的檔案。</span></div></td>
+            <td data-label="來源"><div>GitHub issue：<a href="https://github.com/anthropics/claude-code/issues/73630">#73630</a>（已關閉、未修）</div></td>
+          </tr>
+          <tr data-type="gap" data-keywords="輸入法 選字框 候選字 IME 注音 右下角 位置 63091 61385">
+            <td data-label="類型"><div><span class="tag tag--gap">官方頁未涵蓋</span></div></td>
+            <td data-label="問題主題"><div>中文輸入法的選字框跑到視窗右下角</div></td>
+            <td data-label="錯誤訊息"><div>沒有錯誤訊息。issue 原文描述：<code>IME candidate window appears at the bottom-right corner of the terminal window.</code></div></td>
+            <td data-label="原因"><div>Claude Code 的介面沒有把游標位置正確告訴輸入法（v2.1.153 時回報，屬程式錯誤）。</div></td>
+            <td data-label="白話解法"><div>目前無官方解法，也沒有社群驗證的暫時做法。先更新到最新版看看，並到 issue 追蹤（#63091 已併入 #61385）。</div></td>
+            <td data-label="來源"><div>GitHub issue：<a href="https://github.com/anthropics/claude-code/issues/63091">#63091</a>、<a href="https://github.com/anthropics/claude-code/issues/61385">#61385</a></div></td>
+          </tr>
+          <tr data-type="gap" data-keywords="防毒 Norton SSL 掃描 Remote Control 遠端控制 rc 沒反應 WSL 76642">
+            <td data-label="類型"><div><span class="tag tag--gap">官方頁未涵蓋</span></div></td>
+            <td data-label="問題主題"><div>開著 Norton 的 SSL 掃描，遠端控制顯示已連線但沒反應</div></td>
+            <td data-label="錯誤訊息"><div>沒有錯誤訊息。終端機顯示 <code>/rc active</code>，但從手機或網頁送出的訊息一直轉圈。</div></td>
+            <td data-label="原因"><div>Norton 360 的 SSL／TLS 掃描會攔截並重新簽署加密連線，遠端控制的輸入通道因此默默失效。</div></td>
+            <td data-label="白話解法"><div>回報者驗證有效的暫時做法：改在 WSL2（Ubuntu）裡執行 <code>claude</code> 再開 <code>/remote-control</code>，WSL 的網路不經過 Norton 過濾。<span class="note">Norton 沒有提供針對 SSL 掃描的排除設定。</span></div></td>
+            <td data-label="來源"><div>GitHub issue：<a href="https://github.com/anthropics/claude-code/issues/76642">#76642</a>（已關閉、未修）</div></td>
+          </tr>
+          <tr data-type="gap" data-keywords="防毒 Avast HTTPS 掃描 Desktop 桌面版 Dispatch offline 離線 憑證 91926">
+            <td data-label="類型"><div><span class="tag tag--gap">官方頁未涵蓋</span></div></td>
+            <td data-label="問題主題"><div>開著 Avast 的 HTTPS 掃描，桌面版一直顯示離線</div></td>
+            <td data-label="錯誤訊息"><div><span class="msg">畫面：<code>Desktop appears offline. Will run when it reconnects.</code></span><span class="msg">記錄檔：<code>unable to verify the first certificate</code></span></div></td>
+            <td data-label="原因"><div>Avast 用自己的憑證重新簽署 Anthropic 的連線，Windows 信任它，但 Claude 的部分連線不讀 Windows 憑證存放區，於是驗證失敗。</div></td>
+            <td data-label="白話解法"><div>回報者驗證有效的暫時做法：在 Avast 的 HTTPS 掃描設定中排除 <code>api.anthropic.com</code>、<code>*.anthropic.com</code>、<code>*.claudeusercontent.com</code>，然後重開 Claude 桌面版。<span class="note">不建議直接關掉整個防毒。</span></div></td>
+            <td data-label="來源"><div>GitHub issue：<a href="https://github.com/anthropics/claude-code/issues/91926">#91926</a>（仍開啟）</div></td>
+          </tr>
+          <tr data-type="gap" data-keywords="Defender 防毒 PowerShell pwsh EPERM uv_spawn FileFix Trojan 封鎖 90706">
+            <td data-label="類型"><div><span class="tag tag--gap">官方頁未涵蓋</span></div></td>
+            <td data-label="問題主題"><div>Windows Defender 擋住 Claude 執行 PowerShell</div></td>
+            <td data-label="錯誤訊息"><div><span class="msg"><code>EPERM: operation not permitted, uv_spawn 'C:\Users\&lt;使用者&gt;\AppData\Local\Microsoft\WindowsApps\pwsh.exe'</code></span><span class="msg">Defender 偵測名稱：<code>Trojan:Win32/FileFix.BBA!MTB</code></span></div></td>
+            <td data-label="原因"><div>Claude 把一長串讀寫檔案的 PowerShell 程式碼直接塞在指令列裡，剛好符合 Defender 的可疑行為特徵，被誤判而擋下，但畫面只看到 EPERM。</div></td>
+            <td data-label="白話解法"><div>回報者驗證有效的暫時做法：請 Claude 把那段程式碼先存成 <code>.ps1</code> 檔，再用 <code>pwsh -NoProfile -File 檔名.ps1</code> 執行。<span class="note">不要為此關閉 Defender。</span></div></td>
+            <td data-label="來源"><div>GitHub issue：<a href="https://github.com/anthropics/claude-code/issues/90706">#90706</a>（仍開啟）</div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="empty" id="empty" hidden>找不到符合的項目。可以換個關鍵字，或到<a href="https://github.com/anthropics/claude-code/issues">GitHub issues</a>搜尋。</div>
+
+    <h2>調查時參考的 GitHub issue</h2>
+    <p>以下是調查紀錄引用的 anthropics/claude-code issue 編號。表中有引用的 11 個（#19542、#43967、#46486、#63091、#65338、#73630、#76642、#81187、#87304、#90706、#91926）已於 2026-10-14 逐一打開核對標題與症狀；其餘僅列編號，未逐一核對。</p>
+    <details>
+      <summary>展開 30 個 issue 連結</summary>
+      <p class="small" id="issue-links"></p>
+      <noscript><p class="small">需要 JavaScript 才能顯示連結清單，也可直接到 github.com/anthropics/claude-code/issues/ 後面加上編號。編號：19542、31980、40987、43967、44717、46486、63091、64251、65338、66221、71449、73630、76329、76642、77444、80054、80648、81187、85000、85663、87304、90216、90651、90706、90969、91881、91926、92983、96265、98881。</p></noscript>
+    </details>
+
+    <h2>其他參考</h2>
+    <ul>
+      <li><a href="https://code.claude.com/docs/zh-TW/troubleshoot-install">官方：安裝排錯（繁中）</a>、<a href="https://code.claude.com/docs/zh-TW/troubleshooting">官方：疑難排解（繁中）</a></li>
+      <li><a href="https://coolkidlab.com/newbie-pitfalls/claude-code-windows-setup.html">coolkidlab：Windows 安裝教學</a>（台灣免費教學之一）</li>
+      <li><a href="https://matthung0807.blogspot.com/2026/03/windows-11-claude-code-installation.html">matthung0807：Windows 11 安裝 Claude Code 紀錄</a></li>
+    </ul>
+    <p class="small muted">發現錯誤或有帶來源的訊息字樣可以補充？目前實驗沒有開放投稿管道，之後若開通會公告在首頁。</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap wrap--wide">
+    <p>本站內容由 AI 撰寫、人類核准發布。本站為獨立實驗，與 Anthropic 無關。</p>
+    <p>最後更新：<time datetime="2026-10-14">2026-10-14</time></p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var q = document.getElementById('q');
+  var rows = Array.prototype.slice.call(document.querySelectorAll('#errors tbody tr'));
+  var chips = Array.prototype.slice.call(document.querySelectorAll('.chip'));
+  var count = document.getElementById('count');
+  var empty = document.getElementById('empty');
+  var table = document.getElementById('errors');
+  var type = 'all';
+
+  function norm(s) { return (s || '').toLowerCase(); }
+
+  var index = rows.map(function (tr) {
+    return norm(tr.textContent + ' ' + (tr.getAttribute('data-keywords') || ''));
+  });
+
+  function update() {
+    var terms = norm(q.value).split(/\s+/).filter(Boolean);
+    var shown = 0;
+    rows.forEach(function (tr, i) {
+      var ok = (type === 'all' || tr.getAttribute('data-type') === type);
+      for (var t = 0; ok && t < terms.length; t++) {
+        if (index[i].indexOf(terms[t]) === -1) ok = false;
+      }
+      tr.hidden = !ok;
+      if (ok) shown++;
+    });
+    count.textContent = '顯示 ' + shown + ' / ' + rows.length + ' 筆';
+    empty.hidden = shown !== 0;
+    table.hidden = shown === 0;
+  }
+
+  q.addEventListener('input', update);
+  chips.forEach(function (c) {
+    c.addEventListener('click', function () {
+      type = c.getAttribute('data-filter');
+      chips.forEach(function (o) { o.setAttribute('aria-pressed', o === c ? 'true' : 'false'); });
+      update();
+    });
+  });
+
+  var ids = [19542,31980,40987,43967,44717,46486,63091,64251,65338,66221,71449,73630,76329,76642,77444,80054,80648,81187,85000,85663,87304,90216,90651,90706,90969,91881,91926,92983,96265,98881];
+  var box = document.getElementById('issue-links');
+  if (box) {
+    box.innerHTML = ids.map(function (n) {
+      return '<a href="https://github.com/anthropics/claude-code/issues/' + n + '">#' + n + '</a>';
+    }).join('、');
+  }
+
+  update();
+})();
+</script>
+</body>
+</html>

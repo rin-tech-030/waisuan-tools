@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "職缺過濾器（適用 104）",
+  "version": "1.0.0",
+  "description": "在 104 職缺搜尋結果中，隱藏你指定的公司與標題關鍵字職缺。資料只存在你的瀏覽器，不蒐集、不上傳。",
+  "minimum_chrome_version": "110",
+  "permissions": ["storage"],
+  "host_permissions": ["https://www.104.com.tw/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://www.104.com.tw/jobs/search/*"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "職缺過濾器",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  }
+}

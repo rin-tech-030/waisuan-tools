@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <title>職缺過濾器 設定</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root { color-scheme: light dark; --fg:#1f2328; --muted:#656d76; --bg:#f6f8fa; --card:#ffffff; --line:#d0d7de; --accent:#2563eb; --accent-fg:#fff; --danger:#b42318; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#e6edf3; --muted:#9da7b3; --bg:#12161b; --card:#1b1f24; --line:#3d444d; --accent:#4f8cff; --accent-fg:#0b1220; --danger:#ff8b81; } }
+    body { margin:0; padding:24px 16px 48px; font:15px/1.6 system-ui,"Microsoft JhengHei","PingFang TC",sans-serif; color:var(--fg); background:var(--bg); }
+    main { max-width:720px; margin:0 auto; }
+    h1 { margin:0 0 4px; font-size:22px; }
+    h2 { margin:0 0 4px; font-size:17px; }
+    p.hint { margin:0 0 12px; color:var(--muted); font-size:13px; }
+    section { margin-top:20px; padding:16px; background:var(--card); border:1px solid var(--line); border-radius:12px; }
+    form { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+    input[type=text] { flex:1 1 180px; min-width:0; padding:7px 10px; font:inherit; color:var(--fg); background:transparent; border:1px solid var(--line); border-radius:8px; }
+    button, label.btn { padding:7px 14px; font:inherit; color:var(--fg); background:transparent; border:1px solid var(--line); border-radius:8px; cursor:pointer; }
+    button:hover, label.btn:hover { border-color:var(--accent); }
+    button.primary { color:var(--accent-fg); background:var(--accent); border-color:var(--accent); }
+    button.danger { color:var(--danger); }
+    input:focus-visible, button:focus-visible, label.btn:focus-within { outline:2px solid var(--accent); outline-offset:2px; }
+    ul { margin:0; padding:0; list-style:none; }
+    li { display:flex; align-items:center; gap:8px; padding:8px 0; border-top:1px solid var(--line); }
+    li input[type=text] { flex:1 1 auto; }
+    li .id { flex:0 0 auto; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--muted); font:12px ui-monospace,Consolas,monospace; }
+    li .kw { flex:1 1 auto; word-break:break-all; }
+    .empty { padding:8px 0; color:var(--muted); font-size:13px; }
+    .row { display:flex; flex-wrap:wrap; gap:8px; }
+    #status { min-height:1.5em; margin-top:12px; font-size:13px; color:var(--muted); }
+    #status.error { color:var(--danger); }
+    input[type=file] { position:absolute; width:1px; height:1px; opacity:0; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>職缺過濾器（適用 104）設定</h1>
+  <p class="hint">所有資料只存在這台電腦的瀏覽器內，不會上傳。修改後，已開啟的 104 搜尋頁會立即套用。</p>
+
+  <section aria-labelledby="h-company">
+    <h2 id="h-company">公司黑名單</h2>
+    <p class="hint">也可以直接在搜尋結果的職缺卡片上按「隱藏這家公司」。手動新增時，可貼上公司頁網址（含 /company/…）或公司 ID。</p>
+    <form id="company-form">
+      <input type="text" id="company-ref" placeholder="公司頁網址或 ID（選填）" autocomplete="off" aria-label="公司頁網址或 ID">
+      <input type="text" id="company-name" placeholder="顯示名稱" autocomplete="off" maxlength="100" aria-label="顯示名稱">
+      <button type="submit" class="primary">新增公司</button>
+    </form>
+    <ul id="company-list"></ul>
+  </section>
+
+  <section aria-labelledby="h-kw">
+    <h2 id="h-kw">標題關鍵字黑名單</h2>
+    <p class="hint">職缺標題包含任一關鍵字就隱藏（不分大小寫、全半形視為相同）。</p>
+    <form id="kw-form">
+      <input type="text" id="kw-input" placeholder="例如：業務、日班、保險" autocomplete="off" maxlength="100" aria-label="關鍵字">
+      <button type="submit" class="primary">新增關鍵字</button>
+    </form>
+    <ul id="kw-list"></ul>
+  </section>
+
+  <section aria-labelledby="h-io">
+    <h2 id="h-io">匯出／匯入</h2>
+    <p class="hint">匯出為 JSON 檔，可備份或搬到另一台電腦；匯入會與現有清單合併。</p>
+    <div class="row">
+      <button type="button" id="export">匯出 JSON</button>
+      <label class="btn">匯入 JSON<input type="file" id="import" accept="application/json,.json"></label>
+    </div>
+  </section>
+
+  <div id="status" role="status" aria-live="polite"></div>
+</main>
+<script src="options.js"></script>
+</body>
+</html>

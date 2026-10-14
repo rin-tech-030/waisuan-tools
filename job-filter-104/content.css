@@ -1,0 +1,76 @@
+/* 職缺過濾器（適用 104）— 只作用在有 data-jf104 標記的卡片與本擴充自己的按鈕 */
+
+.jf104-btn {
+  position: absolute;
+  top: 6px;
+  right: 36px; /* 避開 104 卡片右上角自己的關閉（×）按鈕 */
+  z-index: 5;
+  margin: 0;
+  padding: 2px 10px;
+  font: 12px/1.5 system-ui, "Microsoft JhengHei", "PingFang TC", sans-serif;
+  color: #555;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #c7ccd4;
+  border-radius: 999px;
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.15s;
+}
+
+.jf104-btn[hidden] {
+  display: none !important;
+}
+
+[data-jf104]:hover > .jf104-btn,
+.jf104-btn:focus-visible {
+  opacity: 1;
+}
+
+.jf104-btn:hover {
+  color: #b42318;
+  background: #fff1f0;
+  border-color: #f3b4ae;
+}
+
+/* 已隱藏：內文收合成一行，不移除節點、不改變定位方式 */
+[data-jf104="hidden"] {
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  background: #f3f4f6 !important;
+  border-radius: 6px;
+}
+
+[data-jf104="hidden"] > *:not(.jf104-btn) {
+  display: none !important;
+}
+
+[data-jf104="hidden"]::before {
+  content: attr(data-jf104-label);
+  display: block;
+  padding: 10px 90px 10px 14px;
+  font: 13px/1.5 system-ui, "Microsoft JhengHei", "PingFang TC", sans-serif;
+  color: #6b7280;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+[data-jf104="hidden"] > .jf104-btn {
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 1;
+}
+
+/* 個別暫時顯示：用虛線框提示這筆原本在黑名單內 */
+[data-jf104="revealed"] {
+  outline: 1px dashed #98a2b3;
+  outline-offset: -1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jf104-btn {
+    transition: none;
+  }
+}
